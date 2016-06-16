@@ -65,11 +65,25 @@ class Container
         static::getInstance()->set($abstract, $bag);
     }
 
+    /**
+     * Bind abstract and enable sharing
+     *
+     * @param string $abstract
+     * @param mixed  $concrete
+     */
     public static function singleton($abstract, $concrete)
     {
         static::getInstance()->bind($abstract, $concrete, true);
     }
 
+    /**
+     * Get shared instance
+     *
+     * @param string $abstract
+     * @return mixed|object
+     * @throws BindingResolutionException
+     * @throws InvalidArgumentException
+     */
     public static function instance($abstract)
     {
         return static::getInstance()->resolve($abstract);
@@ -128,11 +142,28 @@ class Container
         return $instance;
     }
 
+    /**
+     * Resolve a closure
+     *
+     * @param Closure $closure
+     * @param array   $arguments
+     * @return mixed
+     */
     private function resolveClosure(Closure $closure, $arguments = [])
     {
         return call_user_func_array($closure, $arguments);
     }
 
+    /**
+     * Resolve an instance using ReflectionClass
+     *
+     * @param string $concrete
+     * @param array $arguments
+     * @return object
+     * @throws BindingResolutionException
+     * @throws ClassNotFoundException
+     * @throws InvalidArgumentException
+     */
     private function resolveInstance($concrete, $arguments = [])
     {
         $reflector  = $this->getReflector($concrete);
@@ -172,6 +203,16 @@ class Container
         return $reflector;
     }
 
+    /**
+     * Build dependencies based on ReflectionClass and proposed arguments
+     *
+     * @param ReflectionClass $reflector
+     * @param array           $arguments
+     * @param string          $method_name
+     * @return array
+     * @throws BindingResolutionException
+     * @throws InvalidArgumentException
+     */
     protected function build(ReflectionClass $reflector, $arguments = [], $method_name = self::METHOD_CONSTRUCT)
     {
         $dependencies = [];
